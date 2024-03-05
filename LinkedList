@@ -1,0 +1,65 @@
+#include <stdio.h>
+#include <stdlib.h>
+#define MAX_NODES 100  
+int nodes[MAX_NODES];    
+int head = -1;        
+int tail = -1;        
+void insertAtEnd(int data);
+void deleteNode(int data);
+void printList();
+int main() {
+    insertAtEnd(20);
+    insertAtEnd(30);
+    insertAtEnd(40);                     
+    deleteNode(20);
+    printList();
+    return 0;
+}
+void insertAtEnd(int data) {
+    if (tail == MAX_NODES - 1) {
+        printf("List is full!\n");
+        return;
+    }
+    if (head == -1) {  
+        head = 0;
+    } else {
+        tail++;
+    }
+
+    nodes[tail] = data;
+}
+void deleteNode(int data) {
+    if (head == -1) {  
+        printf("List is empty\n");
+        return;
+    }
+    int i;
+    for (i = head; i <= tail; i++) {
+        if (nodes[i] == data) {
+            if (i == head) {  
+                head++;
+            } else if (i == tail) {  
+            tail--;
+            } else {
+                for (int j = i; j < tail; j++) {
+                    nodes[j] = nodes[j + 1];
+                }
+                tail--; 
+            }
+            return;
+        }
+    }
+    printf("Node not found\n");
+}
+void printList() {
+    if (head == -1) {
+        printf("List is empty\n");
+        return;
+    }
+    printf("List elements: ");
+    for (int i = head; i <= tail; i++) {
+        printf("%d ", nodes[i]);
+    }
+    printf("\n");
+}
+
