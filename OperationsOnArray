@@ -1,0 +1,63 @@
+#include <stdio.h>
+
+#define MAX_SIZE 100
+
+void insert(int arr[], int *n, int x, int pos) {
+    if (*n >= MAX_SIZE || pos < 0 || pos > *n) return;
+    for (int i = *n - 1; i >= pos; i--) arr[i + 1] = arr[i];
+    arr[pos] = x;
+    (*n)++;
+}
+
+void delete(int arr[], int *n, int x) {
+    int found = 0;
+    for (int i = 0; i < *n; i++) {
+        if (arr[i] == x) {
+            found = 1;
+            break;
+        }
+    }
+    if (!found) return;
+    for (int i = found; i < *n - 1; i++) arr[i] = arr[i + 1];
+    (*n)--;
+}
+
+void display(int arr[], int n) {
+    printf("Array elements: ");
+    for (int i = 0; i < n; i++) printf("%d ", arr[i]);
+    printf("\n");
+}
+
+int main() {
+    int arr[MAX_SIZE];
+    int n = 0;
+
+    int choice, x, pos;
+
+    while (1) {
+        printf("\n1. Insert\n2. Delete\n3. Display\n4. Exit\n");
+        printf("Enter your choice: ");
+        scanf("%d", &choice);
+
+        switch (choice) {
+            case 1:
+                scanf("%d %d", &x, &pos);
+                insert(arr, &n, x, pos);
+                break;
+            case 2:
+                scanf("%d", &x);
+                delete(arr, &n, x);
+                break;
+            case 3:
+                display(arr, n);
+                break;
+            case 4:
+                printf("Exiting...\n");
+                return 0;
+            default:
+                printf("Invalid choice\n");
+        }
+    }
+
+    return 0;
+}
