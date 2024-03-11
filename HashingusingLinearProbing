@@ -1,0 +1,61 @@
+#include <stdio.h>
+
+#define MAX_SIZE 10
+
+struct HashItem {
+    int key;
+    int value;
+};
+
+int hashFunction(int key) {
+    return key % MAX_SIZE;
+}
+
+void insert(struct HashItem hashTable[], int key, int value) {
+    int index = hashFunction(key);
+
+    // Linear probing
+    while (hashTable[index].key != 0) {
+        index = (index + 1) % MAX_SIZE;
+    }
+
+    hashTable[index].key = key;
+    hashTable[index].value = value;
+}
+
+int search(struct HashItem hashTable[], int key) {
+    int index = hashFunction(key);
+
+    // Linear probing
+    while (hashTable[index].key != key) {
+        if (hashTable[index].key == 0) {
+            return -1; // Key not found
+        }
+        index = (index + 1) % MAX_SIZE;
+    }
+
+    return index;
+}
+
+int main() {
+    struct HashItem hashTable[MAX_SIZE];
+
+    // Initialize all items as empty (key = 0)
+    for (int i = 0; i < MAX_SIZE; i++) {
+        hashTable[i].key = 0;
+    }
+
+    insert(hashTable, 10, 20);
+    insert(hashTable, 20, 40);
+    insert(hashTable, 15, 30);
+
+    int key = 10;
+    int index = search(hashTable, key);
+    if (index != -1) {
+        printf("Key (%d) found at index %d\n", key, index);
+    } else {
+        printf("Key (%d) not found\n", key);
+    }
+
+    return 0;
+}
