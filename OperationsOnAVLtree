@@ -1,0 +1,103 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+// Structure for a node in the AVL tree
+struct Node {
+    int key;
+    struct Node *left;
+    struct Node *right;
+    int height; // Height of the subtree rooted at the node
+};
+
+// Function to get the height of a node
+int getHeight(struct Node *n) {
+    if (n == NULL) {
+        return 0;
+    }
+    return n->height;
+}
+
+// Function to get the maximum of two integers
+int max(int a, int b) {
+    return (a > b) ? a : b;
+}
+
+// Function to create a new node
+struct Node* newNode(int key) {
+    struct Node* node = (struct Node*)malloc(sizeof(struct Node));
+    node->key = key;
+    node->left = NULL;
+    node->right = NULL;
+    node->height = 1;
+    return node;
+}
+
+// Basic insertion (assuming no balancing needed)
+struct Node* insertSimple(struct Node* node, int key) {
+    if (node == NULL) {
+        return newNode(key);
+    }
+
+    if (key < node->key) {
+        node->left = insertSimple(node->left, key);
+    } else if (key > node->key) {
+        node->right = insertSimple(node->left, key);
+    }
+
+    // Update height (assuming heights are maintained during insertion)
+    node->height = 1 + max(getHeight(node->left), getHeight(node->right));
+
+    return node;
+}
+
+// Simple search (standard BST search)
+struct Node* search(struct Node* node, int key) {
+    if (node == NULL || node->key == key) {
+        return node;
+    }
+
+    if (key < node->key) {
+        return search(node->left, key);
+    } else {
+        return search(node->right, key);
+    }
+}
+
+// Simplified deletion (assuming no balancing needed)
+struct Node* deleteSimple(struct Node* root, int key) {
+    if (root == NULL) {
+        return root;
+    }
+
+    // Standard BST deletion logic (find node, successor, update child pointers)
+    // ... (code for standard BST deletion)
+
+    // Update height after deletion (assuming heights are maintained)
+    if (root != NULL) {
+        root->height = 1 + max(getHeight(root->left), getHeight(root->right));
+    }
+
+    return root;
+}
+
+int main() {
+    struct Node* root = NULL;
+
+    // Example insertions (assuming you maintain balance externally)
+    root = insertSimple(root, 50);
+    root = insertSimple(root, 30);
+    root = insertSimple(root, 20);
+
+    // Example search
+    struct Node* found = search(root, 20);
+    if (found) {
+        printf("Key %d found\n", found->key);
+    } else {
+        printf("Key not found\n");
+    }
+
+    // Example deletion (assuming you maintain balance externally)
+    root = deleteSimple(root, 20);
+
+    return 0;
+}
