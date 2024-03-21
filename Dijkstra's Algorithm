@@ -1,0 +1,111 @@
+#include <stdio.h>
+#include <limits.h>
+
+#define MAX_VERTICES 100
+
+// Structure to represent an adjacency list node
+struct AdjListNode {
+    int dest;
+    int weight;
+    struct AdjListNode* next;
+};
+
+// Structure to represent a graph
+struct Graph {
+    int numVertices;
+    struct AdjListNode* array[MAX_VERTICES];
+};
+
+// Function to create a new graph node
+struct AdjListNode* newAdjListNode(int dest, int weight) {
+    struct AdjListNode* newNode = (struct AdjListNode*)malloc(sizeof(struct AdjListNode));
+    newNode->dest = dest;
+    newNode->weight = weight;
+    newNode->next = NULL;
+    return newNode;
+}
+
+// Function to create a graph with numVertices vertices
+struct Graph* createGraph(int numVertices) {
+    struct Graph* graph = (struct Graph*)malloc(sizeof(struct Graph));
+    graph->numVertices = numVertices;
+
+    // Create an array of adjacency lists. Size of array will be numVertices
+    for (int i = 0; i < numVertices; ++i) {
+        graph->array[i] = NULL;
+    }
+
+    return graph;
+}
+
+// Function to add an edge to an undirected graph
+void addEdge(struct Graph* graph, int src, int dest, int weight) {
+    // Add an edge from src to dest
+    struct AdjListNode* newNode = newAdjListNode(dest, weight);
+    newNode->next = graph->array[src];
+    graph->array[src] = newNode;
+
+    // Since graph is assumed to be undirected, add an edge from dest to src also
+    newNode = newAdjListNode(src, weight);
+    newNode->next = graph->array[dest];
+    graph->array[dest] = newNode;
+}
+
+// Function to print the constructed distance array
+void printShortestDistance(int dist[], int n) {
+    printf("Vertex \t\t Distance from Source\n");
+    for (int i = 0; i < n; ++i) {
+        printf("%d \t\t %d\n", i, dist[i]);
+    }
+}
+
+// Function to find the minimum distance vertex from the set of vertices not yet included in shortest path tree
+int minDistance(int dist[], bool sptSet[]) {
+    // Initialize min value
+    int min = INT_MAX, min_index;
+
+    for (int v = 0; v < MAX_VERTICES; v++) {
+        if (sptSet[v] == false && dist[v] < min) {
+            min = dist[v];
+            min_index = v;
+        }
+    }
+
+    return min_index;
+}
+
+// Function to construct and print shortest path for a graph reated using
+// adjacency list representation
+void dijkstra(struct Graph* graph, int src) {
+    int dist[MAX_VERTICES]; // The output array.  dist[i] will hold the shortest
+                           // distance from src to i
+
+    bool sptSet[MAX_VERTICES]; // sptSet[i] will be true if vertex i is included in shortest
+                               // path tree or shortest distance is finalized
+
+    // Initialize all distances as INFINITE and sptSet[] as false
+    for (int i = 0; i < MAX_VERTICES; i++) {
+        dist[i] = INT_MAX;
+        sptSet[i] = false;
+    }
+
+    // Distance of source vertex from itself is always 0
+    dist[src] = 0;
+
+    // Find shortest path for all vertices
+    for (int count = 0; count < MAX_VERTICES - 1; count++) {
+        // Pick the minimum distance vertex from the set of vertices not yet
+        // processed. u is always equal to src in first iteration.
+        int u = minDistance(dist, sptSet);
+
+        // Mark the picked vertex as processed
+        sptSet[u] = true;
+
+        // Update dist value of the current vertex if a shorter path is found
+        struct AdjListNode* temp = graph->array[u];
+        while (temp != NULL) {
+            int v = temp->dest;
+            int weight = temp->weight;
+
+            // Update dist[v] only if is not in sptSet and there is a valid path from
+            // src to v via u. And dist
