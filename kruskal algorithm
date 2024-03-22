@@ -1,0 +1,95 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+// Structure to represent an edge in graph
+struct Edge {
+    int src, dest, weight;
+};
+
+// Structure for a graph
+struct Graph {
+    int V, E;
+    struct Edge* edge;
+};
+
+// Prototype for a utility function to find the root of an element in the Union-Find data structure
+int find(struct subset subsets[], int i);
+
+// Prototype for a function to merge two subsets in Union-Find data structure
+void Union(struct subset subsets[], int x, int y);
+
+// Function compares two edges according to their weights
+int myComp(const void* a, const void* b) {
+    struct Edge* a1 = (struct Edge*)a;
+    struct Edge* b1 = (struct Edge*)b;
+    return a1->weight > b1->weight;
+}
+
+// Function to construct and print MST for a graph represented using adjacency
+// matrix representation
+void KruskalMST(struct Graph* graph) {
+    int V = graph->V;
+    struct Edge result[V]; // Array to store constructed MST
+    int e = 0;  // An index variable, used for result[]
+    int i = 0;   // An index variable, used for sorted edges
+
+    // Step 1: Sort all edges in non-increasing order of their weight
+    qsort(graph->edge, graph->E, sizeof(graph->edge[0]), myComp);
+
+    // Allocate memory for creating V subsets
+    struct subset* subsets = (struct subset*)malloc(V * sizeof(struct subset));
+
+    // Create V subsets with single elements
+    for (int v = 0; v < V; ++v) {
+        subsets[v].parent = v;
+        subsets[v].rank = 0;
+    }
+
+    // Step 2: Pick the smallest edge and increment the index
+    // for next iteration
+    while (e < V - 1 && i < graph->E) {
+        // Step 3: Pick the edge and increment the index for next iteration
+        struct Edge next_edge = graph->edge[i++];
+
+        int x = find(subsets, next_edge.src);
+        int y = find(subsets, next_edge.dest);
+
+        // If including this edge doesn't cause a cycle
+        if (x != y) {
+            // Include edge in MST
+            result[e++] = next_edge;
+
+            // Merge two sets in Union-Find
+            Union(subsets, x, y);
+        }
+    }
+
+    // Print the constructed MST
+    printf("Following are the edges in constructed MST\n");
+    for (i = 0; i < e; ++i) {
+        printf("%d -- %d == %d \n", result[i].src, result[i].dest, result[i].weight);
+    }
+
+    // Free memory allocated for subsets
+    free(subsets);
+}
+
+// A utility function to find the set of an element i
+// (uses path compression technique)
+int find(struct subset subsets[], int i) {
+    // If i is the root, return itself
+    if (subsets[i].parent != i) {
+        subsets[i].parent = find(subsets, subsets[i].parent);
+    }
+    return subsets[i].parent;
+}
+
+// A function that does union of two sets with rank
+void Union(struct subset subsets[], int x, int y) {
+    int xroot = find(subsets, x);
+    int yroot = find(subsets, y);
+
+    // Attach the smaller rank tree under the root of the larger rank tree
+    if (subsets[xroot].rank < subsets[yroot].rank) {
+        subsets[xroot].parent = yroot;
+    } else if (subsets[xroot].rank > subsets
