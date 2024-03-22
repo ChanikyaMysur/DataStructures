@@ -1,0 +1,111 @@
+#include <stdio.h>
+#include <limits.h>
+
+#define MAX_VERTICES 100
+
+// Structure for an adjacency list node
+struct AdjListNode {
+    int dest;
+    int weight;
+    struct AdjListNode* next;
+};
+
+// Structure for a graph
+struct Graph {
+    int numVertices;
+    struct AdjListNode* array[MAX_ VERTICES];
+};
+
+// Function to create a new graph node
+struct AdjListNode* newAdjListNode(int dest, int weight) {
+    struct AdjListNode* newNode = (struct AdjListNode*)malloc(sizeof(struct AdjListNode));
+    newNode->dest = dest;
+    newNode->weight = weight;
+    newNode->next = NULL;
+    return newNode;
+}
+
+// Function to create a graph with numVertices vertices
+struct Graph* createGraph(int numVertices) {
+    struct Graph* graph = (struct Graph*)malloc(sizeof(struct Graph));
+    graph->numVertices = numVertices;
+
+    // Create an array of adjacency lists. Size of array will be numVertices
+    for (int i = 0; i < numVertices; ++i) {
+        graph->array[i] = NULL;
+    }
+
+    return graph;
+}
+
+// Function to add an edge to an undirected graph
+void addEdge(struct Graph* graph, int src, int dest, int weight) {
+    // Add an edge from src to dest
+    struct AdjListNode* newNode = newAdjListNode(dest, weight);
+    newNode->next = graph->array[src];
+    graph->array[src] = newNode;
+
+    // Since graph is assumed to be undirected, add an edge from dest to src also
+    newNode = newAdjListNode(src, weight);
+    newNode->next = graph->array[dest];
+    graph->array[dest] = newNode;
+}
+
+// Function to print the constructed MST stored in parent[]
+void printMST(int parent[], int graph[MAX_VERTICES][MAX_VERTICES], int numVertices) {
+    printf("Edge \tWeight\n");
+    for (int i = 1; i < numVertices; ++i) {
+        printf("%d - %d \t%d \n", parent[i], i, graph[i][parent[i]]);
+    }
+}
+
+// Function to find the minimum key vertex from the set of vertices
+// not yet included in MST
+int minKey(int key[], bool mstSet[]) {
+    // Initialize min value
+    int min = INT_MAX, min_index;
+
+    for (int v = 0; v < MAX_VERTICES; v++) {
+        if (mstSet[v] == false && key[v] < min) {
+            min = key[v];
+            min_index = v;
+        }
+    }
+
+    return min_index;
+}
+
+// Function to construct and print MST for a graph represented using
+// adjacency matrix representation
+void primMST(struct Graph* graph) {
+    int numVertices = graph->numVertices;
+    int parent[numVertices]; // Array to store constructed MST
+    int key[numVertices];    // Key values used to pick minimum edge in cut
+    bool mstSet[numVertices]; // To represent set of vertices included in MST
+
+    // Initialize all keys as INFINITE
+    for (int i = 0; i < numVertices; ++i) {
+        key[i] = INT_MAX;
+        mstSet[i] = false;
+    }
+
+    // Always include first vertex in MST.
+    // Make key 0 so that this vertex is picked as first vertex.
+    key[0] = 0;
+    parent[0] = -1; // First node is always root of MST
+
+    // The MST will have numVertices vertices
+    for (int count = 0; count < numVertices - 1; count++) {
+        // Pick the minimum key vertex from the set of vertices
+        // not yet included in MST
+        int u = minKey(key, mstSet);
+
+        // Add the picked vertex to the MST Set
+        mstSet[u] = true;
+
+        // Update key value and parent index of the adjacent vertices of
+        // the picked vertex. Consider only those vertices which are not yet
+        // included in MST
+        struct AdjListNode* temp = graph->array[u];
+        while (temp) {
+            
